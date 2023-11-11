@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'empresa_id',
+        'tipoUsuario'
     ];
 
     /**
@@ -47,4 +49,17 @@ class User extends Authenticatable
         return $this->hasMany(Task::class);
 
     }
+
+    public function status(){
+
+        return $this->hasMany(Status::class);
+
+    }
+
+    public function empresas()
+    {
+        return $this->belongsTo(Empresas::class, 'empresa_id');
+    }
+
+
 }

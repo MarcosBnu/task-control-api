@@ -19,7 +19,7 @@ class TaskController extends Controller
     public function tarefas(){
 
         try{
-
+            
             return $this->taskService->getTarefas();
        
         } catch(Exception $e){

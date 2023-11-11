@@ -7,17 +7,16 @@
     use App\Models\Empresas;
     use Exception;
     use Illuminate\Http\Request;
+use PhpParser\Node\Expr\New_;
 
-
-    class UserService
+    class EmpresasService
     {
-        public function registerUser(Request $request, $userEmpresa)
+        public function registerEmpresas(Request $request)
         {
             // Use o método validate diretamente no Request
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string',
-                'email' => 'required|email|unique:users',
-                'password' => 'required|string|min:6',
+                'nome' => 'required|string',
+                'cnpj' => 'required|unique:empresas',
             ]);
 
             if ($validator->fails()) {
@@ -26,13 +25,13 @@
             }
 
             // Se a validação for bem-sucedida, crie o usuário
-            $user = User::create([
-                'name' => $request->input('name'),
-                'email' => $request->input('email'),
-                'empresaId' => $userEmpresa,
-                'password' => bcrypt($request->input('password')),
+            $user = Empresas::create([
+                'nome' => $request->input('name'),
+                'cnpj' => $request->input('cnpj'),
             ]);
 
-            return $user;
+            $usuario = New UserService;
+
+            return $usuario->registerUser($request, $user->id);
         }
     }

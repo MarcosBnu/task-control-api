@@ -3,6 +3,7 @@
     namespace App\Services;
 
     use App\Http\Controllers\Controller;
+    use App\Models\StatusHistory;
     use App\Models\Task;
     use Illuminate\Support\Facades\Auth;
     use Illuminate\Http\Request;
@@ -15,7 +16,7 @@
 
             $usuario = Auth::user();
 
-            $tarefasDoUsuario = $usuario->tasks;
+            $tarefasDoUsuario = $usuario->empresas->tasks;
 
             return response()->json(['tarefas' => $tarefasDoUsuario]);
 
@@ -35,7 +36,7 @@
 
             }
 
-            $tarefaDoUsuario = $usuario->tasks->where('id', $id)->first();
+            $tarefaDoUsuario = $usuario->empresas->tasks->where('id', $id)->first();
 
             if (!$tarefaDoUsuario) {
 
@@ -53,10 +54,14 @@
 
             $dados['user_id'] = $usuario->id;
 
+            $dados['empresa_id'] = $usuario->empresas->id;
+
             $dados['finalizada'] = $dados['finalizada'] ?? false;
 
             $validator = Validator::make($dados->all(), [
-                'user_id' => 'required|exists:users,id', 
+                'user_id' => 'required|exists:users,id',
+                'empresa_id' => 'required|exists:empresas,id',
+                'status_id' =>  'required|exists:status,id',
                 'nome' => 'required|string|min:1',
                 'descricao' => 'required|string|min:1',
                 'finalizada' => 'nullable|boolean',
@@ -69,26 +74,39 @@
                 throw new Exception($validator->errors()->first());
             }
 
-            Task::create([
-                'nome' => $dados->input('nome'),
-                'descricao' => $dados->input('descricao'),
-                'finalizada' => $dados->input('finalizada'),
-                'dataFinalizado' => $dados->input('dataFinalizado'),
-                'dataDeEntrega' => $dados->input('dataDeEntrega'),
-                'user_id' => $dados->input('user_id')
-            ]);
+            if($usuario->empresas->status->where('id', $dados->input('status_id'))->first()){
 
-            return response()->json(['message' => 'Tarefa cadastrada com sucesso!']);
+                $task = Task::create([
+                    'nome' => $dados->input('nome'),
+                    'descricao' => $dados->input('descricao'),
+                    'finalizada' => $dados->input('finalizada'),
+                    'dataFinalizado' => $dados->input('dataFinalizado'),
+                    'dataDeEntrega' => $dados->input('dataDeEntrega'),
+                    'user_id' => $dados->input('user_id'),
+                    'status_id' => $dados->input('status_id'),
+                    'empresa_id' => $dados->input('empresa_id')
+                ]);
+
+                $historico = New StatusHistoryService;
+
+                $historico->registrar($dados->input('user_id'), $dados->input('status_id'), $task->id);
+    
+                return response()->json(['message' => 'Tarefa cadastrada com sucesso!']);
+            } else {
+
+                return response()->json(['message' => 'status invalido!']);
+
+            }
+
 
         }
 
         public function deletarTarefa($dados){
 
-            $usuarioId = Auth::user()->id;
+            $usuarioId = Auth::user();
 
-            $validator = Validator::make(['id' => $dados, 'user_id' => $usuarioId], [
+            $validator = Validator::make(['id' => $dados], [
                 'id'      => 'required|numeric',  
-                'user_id' => 'required|exists:users,id', 
             ]);
 
             if ($validator->fails()) {
@@ -97,7 +115,7 @@
 
             }
 
-            $tarefaDelete = Task::where('id', $dados)->where('user_id', $usuarioId)->first();
+            $tarefaDelete = $usuarioId->empresas->tasks->where('id', $dados)->first();
 
             if (!$tarefaDelete) {
 
@@ -115,13 +133,20 @@
 
             $usuario = Auth::user();
 
-            $dados['user_id'] = $usuario->id;
+            if (!$dados->isJson()) {
+                return response()->json(['mensagem' => 'A solicitação não contém um corpo JSON válido'], 400);
+            }
+        
+            $jsonArray = json_decode($dados->getContent(), true);
+            
+            if (empty($jsonArray)) {
+                return response()->json(['mensagem' => 'JSON vazio'], 404);
+            }
 
             $dados['id'] = $id;
 
             $validator = Validator::make($dados->all(), [
                 'id'    => 'required|numeric',
-                'user_id' => 'required|exists:users,id', 
                 'nome' => 'string|min:1',
                 'descricao' => 'string|min:1',
                 'finalizada' => 'nullable|boolean',
@@ -131,19 +156,39 @@
 
             if ($validator->fails()) {
                 // Se a validação falhar, lance uma exceção
-                throw new Exception($validator->errors()->first());
+                return response()->json(['message' => 'Dados inválidos', 'errors' => $validator->errors()], 400);
             
             }
 
-            $tarefa = Task::where('id', $id)->where('user_id', $usuario->id)->first();
+            $tarefa = $usuario->empresas->tasks->where('id', $id)->first();
 
             if (!$tarefa) {
                 return response()->json(['mensagem' => 'Tarefa não encontrada ou não autorizada'], 404);
             }
 
-            $tarefa->update($dados->only(['nome', 'descricao', 'finalizada', 'dataDeEntrega']));
+            if(($dados->input('status_id') && $usuario->status->where('id', $dados->input('status_id'))->first()) || empty($dados->input('status_id'))){
 
-            return response()->json(['mensagem' => 'Tarefa atualizada com sucesso']);
+                $statusIdAntes = $tarefa->status_id;
+
+                $tarefa->update($dados->only(['nome', 'descricao', 'finalizada', 'dataDeEntrega', 'status_id']));
+
+                $statusIdDepois = $tarefa->status_id;
+                
+                if ($statusIdAntes != $statusIdDepois) {
+
+                    $hitorico = New StatusHistoryService;
+
+                    $hitorico->saida($usuario->id, $id, $statusIdAntes, $statusIdDepois);
+                }
+
+                return response()->json(['mensagem' => 'Tarefa atualizada com sucesso']);
+            
+            } else {
+
+                return response()->json(['message' => 'status invalido!']);
+
+            }
+
 
         }
 
