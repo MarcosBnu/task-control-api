@@ -27,7 +27,7 @@ class UserController extends Controller
 
             $user = $empresa->registerEmpresas($request);
 
-            return response()->json(['message' => 'Usuário cadastrado com sucesso!', 'user' => $user]);
+            return response()->json(['message' => 'Empresa cadastrada com sucesso!', 'user' => $user]);
 
         } catch (Exception $e) {
             
@@ -39,7 +39,7 @@ class UserController extends Controller
     {
         try {
 
-            $user = $this->userService->registerUser($request, Auth::user()->id);
+            $user = $this->userService->registerUser($request, Auth::user()->empresa_id);
 
             return response()->json(['message' => 'Usuário cadastrado com sucesso!', 'user' => $user]);
 

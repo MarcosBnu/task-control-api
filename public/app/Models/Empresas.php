@@ -9,17 +9,17 @@ class Empresas extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nome', 'cnpj'];
+    protected $fillable = ['name', 'cnpj'];
 
     public function tasks(){
 
-        return $this->hasMany(Task::class);
+        return $this->hasMany(Task::class, 'empresa_id');
 
     }
 
     public function status(){
 
-        return $this->hasMany(Status::class);
+        return $this->hasMany(Status::class, 'empresa_id');
 
     }
 }

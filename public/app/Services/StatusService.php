@@ -18,9 +18,9 @@
 
             $usuario = Auth::user();
 
-            $tarefasDoUsuario = $usuario->status;
+            $statusDoUsuario = $usuario->empresas->status;
 
-            return response()->json(['tarefas' => $tarefasDoUsuario]);
+            return response()->json(['status' => $statusDoUsuario]);
 
         }
         
@@ -38,7 +38,7 @@
 
             }
 
-            $statusDoUsuario = $usuario->status->where('id', $id)->first();
+            $statusDoUsuario = $usuario->empresas->status->where('id', $id)->first();
 
             if (!$statusDoUsuario) {
 
@@ -49,14 +49,18 @@
             return response()->json(['status' => $statusDoUsuario]);
 
         }
+
         public function cadastrarStatus(Request $dados){
 
             $usuario = Auth::user();
 
             $dados['user_id'] = $usuario->id;
 
+            $dados['empresa_id'] = $usuario->empresa_id;
+
             $validator = Validator::make($dados->all(), [
-                'user_id' => 'required|exists:users,id', 
+                'user_id' => 'required|exists:users,id',
+                'empresa_id'=> 'required|exists:empresas,id',
                 'nome' => 'required|string|min:1',
                 'descricao' => 'required|string|min:1',
             ]);
@@ -69,7 +73,9 @@
             Status::create([
                 'nome' => $dados->input('nome'),
                 'descricao' => $dados->input('descricao'),
-                'user_id' => $dados->input('user_id')
+                'user_id' => $dados->input('user_id'),
+                'empresa_id' => $dados->input('empresa_id')
+
             ]);
 
             return response()->json(['message' => 'Tarefa cadastrada com sucesso!']);
@@ -78,11 +84,10 @@
 
         public function deletarStatus($dados){
 
-            $usuarioId = Auth::user()->id;
+            $usuario = Auth::user();
 
-            $validator = Validator::make(['id' => $dados, 'user_id' => $usuarioId], [
+            $validator = Validator::make(['id' => $dados], [
                 'id'      => 'required|numeric',  
-                'user_id' => 'required|exists:users,id', 
             ]);
 
             if ($validator->fails()) {
@@ -91,7 +96,7 @@
 
             }
 
-            $tarefaComStatus = Task::where('status_id', $dados)->where('user_id', $usuarioId)->first();
+            $tarefaComStatus = Task::where('status_id', $dados)->where('empresa_id')->first();
 
             if ($tarefaComStatus) {
 
@@ -99,7 +104,7 @@
             
             }
 
-            $status = Status::where('id', $dados)->where('user_id', $usuarioId)->first();
+            $status = $usuario->empresas->status->where('id', $dados)->first(); 
 
             if(!$status){
 
@@ -144,7 +149,7 @@
             
             }
 
-            $status = Status::where('id', $id)->where('user_id', $usuario->id)->first();
+            $status = $usuario->empresas->status->where('id', $id)->first();
 
             if (!$status) {
                 return response()->json(['mensagem' => 'status não encontrada ou não autorizada'], 404);

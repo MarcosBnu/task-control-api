@@ -15,7 +15,7 @@ use PhpParser\Node\Expr\New_;
         {
             // Use o método validate diretamente no Request
             $validator = Validator::make($request->all(), [
-                'nome' => 'required|string',
+                'name' => 'required|string',
                 'cnpj' => 'required|unique:empresas',
             ]);
 
@@ -26,11 +26,13 @@ use PhpParser\Node\Expr\New_;
 
             // Se a validação for bem-sucedida, crie o usuário
             $user = Empresas::create([
-                'nome' => $request->input('name'),
+                'name' => $request->input('name'),
                 'cnpj' => $request->input('cnpj'),
             ]);
 
             $usuario = New UserService;
+
+            $request['tipoUsuario'] = 'admin';
 
             return $usuario->registerUser($request, $user->id);
         }

@@ -12,21 +12,29 @@
     class StatusHistoryService
     {
 
-        public final function registrar($usuario, $status, $task){
+        public final function registrar($usuario, $status, $task, $empresa_id){
 
             StatusHistory::create([
                 'user_id'   => $usuario,
                 'task_id'   => $task,
-                'status_id' => $status
+                'status_id' => $status,
+                'empresa_id'=> $empresa_id
             ]);
         }
 
-        public final function saida($usuario, $task, $status, $newStatus){
+        public final function saida($usuario, $task, $status, $newStatus, $empresa_id){
+ 
+            $statusAntigo = StatusHistory::where('task_id', $task)
+                ->where('status_id', $status)
+                ->where('empresa_id', $empresa_id)
+                ->whereNull('saida')->first();
 
-            $statusAntigo = StatusHistory::where('user_id', $usuario)->where('task_id', $task)->where('status_id', $status)->whereNull('saida')->first();
+            if($statusAntigo){
 
-            $statusAntigo->update(['saida' => now()]);
+                $statusAntigo->update(['saida' => now()]);
 
-            $this->registrar($usuario, $newStatus, $task);
+            }
+
+            $this->registrar($usuario, $newStatus, $task, $empresa_id);
         }
     }

@@ -89,7 +89,7 @@
 
                 $historico = New StatusHistoryService;
 
-                $historico->registrar($dados->input('user_id'), $dados->input('status_id'), $task->id);
+                $historico->registrar($dados->input('user_id'), $dados->input('status_id'), $task->id, $task->empresa_id);
     
                 return response()->json(['message' => 'Tarefa cadastrada com sucesso!']);
             } else {
@@ -166,7 +166,7 @@
                 return response()->json(['mensagem' => 'Tarefa não encontrada ou não autorizada'], 404);
             }
 
-            if(($dados->input('status_id') && $usuario->status->where('id', $dados->input('status_id'))->first()) || empty($dados->input('status_id'))){
+            if(($dados->input('status_id') && $usuario->empresas->status->where('id', $dados->input('status_id'))->first()) || empty($dados->input('status_id'))){
 
                 $statusIdAntes = $tarefa->status_id;
 
@@ -178,7 +178,7 @@
 
                     $hitorico = New StatusHistoryService;
 
-                    $hitorico->saida($usuario->id, $id, $statusIdAntes, $statusIdDepois);
+                    $hitorico->saida($usuario->id, $id, $statusIdAntes, $statusIdDepois, $usuario->empresa_id);
                 }
 
                 return response()->json(['mensagem' => 'Tarefa atualizada com sucesso']);
