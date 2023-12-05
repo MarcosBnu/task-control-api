@@ -11,10 +11,6 @@ class CreateTasksTable extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('empresa_id')->constrained('empresas')->onDelete('cascade');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->unsignedBigInteger('status_id');
-            $table->foreign('status_id')->references('id')->on('status');
             $table->string('nome');
             $table->text('descricao')->nullable();
             $table->boolean('finalizada')->default(false);

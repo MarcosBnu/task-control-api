@@ -9,6 +9,11 @@ class Task extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nome', 'user_id', 'empresa_id', 'status_id', 'descricao', 'finalizada', 'dataFinalizado', 'dataDeEntrega'];
+    protected $fillable = ['nome', 'empresa_id', 'status_id', 'descricao', 'finalizada', 'dataFinalizado', 'dataDeEntrega'];
 
+    public function statushistory(){
+
+        return $this->hasMany(StatusHistory::class, 'task_id');
+
+    }
 }

@@ -44,22 +44,15 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function tasks(){
-
-        return $this->hasMany(Task::class, 'user_id');
-
-    }
-
-    public function status(){
-
-        return $this->hasMany(Status::class, 'user_id');
-
-    }
-
     public function empresas()
     {
         return $this->belongsTo(Empresas::class, 'empresa_id');
     }
 
+    public function statushistory(){
+
+        return $this->hasMany(StatusHistory::class, 'user_id');
+
+    }
 
 }

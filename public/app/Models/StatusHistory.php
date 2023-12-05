@@ -9,7 +9,7 @@ class StatusHistory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id','empresa_id', 'task_id', 'status_id', 'saida'];
+    protected $fillable = ['user_id','empresa_id', 'task_id', 'status_id', 'saida', 'comentario'];
 
     protected $table = "status_history";
 }

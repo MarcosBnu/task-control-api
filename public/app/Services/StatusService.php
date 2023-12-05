@@ -54,12 +54,9 @@
 
             $usuario = Auth::user();
 
-            $dados['user_id'] = $usuario->id;
-
             $dados['empresa_id'] = $usuario->empresa_id;
 
             $validator = Validator::make($dados->all(), [
-                'user_id' => 'required|exists:users,id',
                 'empresa_id'=> 'required|exists:empresas,id',
                 'nome' => 'required|string|min:1',
                 'descricao' => 'required|string|min:1',
@@ -73,7 +70,6 @@
             Status::create([
                 'nome' => $dados->input('nome'),
                 'descricao' => $dados->input('descricao'),
-                'user_id' => $dados->input('user_id'),
                 'empresa_id' => $dados->input('empresa_id')
 
             ]);
@@ -108,13 +104,13 @@
 
             if(!$status){
 
-                return response()->json(['mensagem' => 'Tarefa não encontrada ou não autorizada'], 404);
+                return response()->json(['mensagem' => 'Status não encontrada ou não autorizada'], 404);
 
             }
 
             $status->delete();
 
-            return response()->json(['mensagem' => 'status deletado com sucesso']);
+            return response()->json(['mensagem' => 'Status deletado com sucesso']);
 
         }
 
@@ -132,13 +128,10 @@
                 return response()->json(['mensagem' => 'JSON vazio'], 404);
             }
             
-            $dados['user_id'] = $usuario->id;
-
             $dados['id'] = $id;
 
             $validator = Validator::make($dados->all(), [
                 'id'    => 'required|numeric',
-                'user_id' => 'required|exists:users,id',
                 'nome' => 'string|min:1',
                 'descricao' => 'string|min:1',
             ]);

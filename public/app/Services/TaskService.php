@@ -16,6 +16,7 @@
 
             $usuario = Auth::user();
 
+            //so validar o tipo de usuario
             $tarefasDoUsuario = $usuario->empresas->tasks;
 
             return response()->json(['tarefas' => $tarefasDoUsuario]);
@@ -35,7 +36,7 @@
                 throw new Exception($validator->errors()->first());
 
             }
-
+            //so validar o tipo de usuario
             $tarefaDoUsuario = $usuario->empresas->tasks->where('id', $id)->first();
 
             if (!$tarefaDoUsuario) {
@@ -52,16 +53,12 @@
 
             $usuario = Auth::user();
 
-            $dados['user_id'] = $usuario->id;
-
             $dados['empresa_id'] = $usuario->empresas->id;
 
             $dados['finalizada'] = $dados['finalizada'] ?? false;
 
             $validator = Validator::make($dados->all(), [
-                'user_id' => 'required|exists:users,id',
                 'empresa_id' => 'required|exists:empresas,id',
-                'status_id' =>  'required|exists:status,id',
                 'nome' => 'required|string|min:1',
                 'descricao' => 'required|string|min:1',
                 'finalizada' => 'nullable|boolean',
@@ -82,16 +79,11 @@
                     'finalizada' => $dados->input('finalizada'),
                     'dataFinalizado' => $dados->input('dataFinalizado'),
                     'dataDeEntrega' => $dados->input('dataDeEntrega'),
-                    'user_id' => $dados->input('user_id'),
-                    'status_id' => $dados->input('status_id'),
                     'empresa_id' => $dados->input('empresa_id')
                 ]);
-
-                $historico = New StatusHistoryService;
-
-                $historico->registrar($dados->input('user_id'), $dados->input('status_id'), $task->id, $task->empresa_id);
     
                 return response()->json(['message' => 'Tarefa cadastrada com sucesso!']);
+
             } else {
 
                 return response()->json(['message' => 'status invalido!']);
@@ -166,29 +158,9 @@
                 return response()->json(['mensagem' => 'Tarefa não encontrada ou não autorizada'], 404);
             }
 
-            if(($dados->input('status_id') && $usuario->empresas->status->where('id', $dados->input('status_id'))->first()) || empty($dados->input('status_id'))){
+            $tarefa->update($dados->only(['nome', 'descricao', 'finalizada', 'dataDeEntrega']));
 
-                $statusIdAntes = $tarefa->status_id;
-
-                $tarefa->update($dados->only(['nome', 'descricao', 'finalizada', 'dataDeEntrega', 'status_id']));
-
-                $statusIdDepois = $tarefa->status_id;
-                
-                if ($statusIdAntes != $statusIdDepois) {
-
-                    $hitorico = New StatusHistoryService;
-
-                    $hitorico->saida($usuario->id, $id, $statusIdAntes, $statusIdDepois, $usuario->empresa_id);
-                }
-
-                return response()->json(['mensagem' => 'Tarefa atualizada com sucesso']);
-            
-            } else {
-
-                return response()->json(['message' => 'status invalido!']);
-
-            }
-
+            return response()->json(['mensagem' => 'Tarefa atualizada com sucesso']);
 
         }
 

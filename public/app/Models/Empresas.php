@@ -22,4 +22,10 @@ class Empresas extends Model
         return $this->hasMany(Status::class, 'empresa_id');
 
     }
+
+    public function users(){
+
+        return $this->hasMany(User::class, 'empresa_id');
+
+    }
 }

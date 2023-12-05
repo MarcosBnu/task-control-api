@@ -19,22 +19,6 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    public function register(Request $request)
-    {
-        try {
-
-            $empresa = New EmpresasService;
-
-            $user = $empresa->registerEmpresas($request);
-
-            return response()->json(['message' => 'Empresa cadastrada com sucesso!', 'user' => $user]);
-
-        } catch (Exception $e) {
-            
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
     public function registerUsuario(Request $request)
     {
         try {
@@ -49,9 +33,56 @@ class UserController extends Controller
         }
     }
 
-    // public function teste()
-    // {
-    //     return response()->json(['oi' => 'eitaa']);
+    public function deleteUsuario($id)
+    {
+        try{
+            
+            $retorno = $this->userService->deletarUsuario($id);
 
-    // }
+            return $retorno;
+            
+        } catch(Exception $e){
+
+            return response()->json(['error' => $e->getMessage()]);
+
+        }
+
+    }
+
+    public function atualizarUsuario(Request $request, $id)
+    {
+        try {
+
+            return $this->userService->atualizarUsuario($request, $id);
+
+        } catch (Exception $e) {
+            
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    public function verUsuario($id){
+
+        try {
+
+            return $this->userService->getUsuario($id);
+
+        } catch (Exception $e) {
+            
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+
+    }
+
+    public function verUsuarios(){
+
+        try {
+
+            return $this->userService->getUsuarios();
+
+        } catch (Exception $e) {
+            
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+
+    }
 }

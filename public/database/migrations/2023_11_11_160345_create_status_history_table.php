@@ -16,7 +16,6 @@ class CreateStatusHistoryTable extends Migration
             $table->timestamp('saida')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent();
-
             $table->foreignId('empresa_id')->constrained('empresas')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('task_id')->references('id')->on('tasks')->onDelete('cascade');

@@ -6,6 +6,10 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthenticatedSessionController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\StatusController;
+use App\Http\Controllers\Api\EmpresaController;
+use App\Http\Controllers\Api\StatusHistoryController;
+
+
 
 
 /*
@@ -18,13 +22,22 @@ use App\Http\Controllers\Api\StatusController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::post('/register', [UserController::class, 'register']);
-
+Route::post('/register', [EmpresaController::class, 'register']);
 Route::post('/login', [AuthenticatedSessionController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
+    Route::get('/ver-empresa', [EmpresaController::class, 'index']);
+    Route::put('/atualizar-empresa', [EmpresaController::class, 'update']);
+    Route::delete('/delete-empresa', [EmpresaController::class, 'destroy']);
+
+
     Route::post('/register-usuario', [UserController::class, 'registerUsuario']);
+    Route::delete('/delete-usuario/{id}', [UserController::class, 'deleteUsuario']);
+    Route::put('/atualizar-usuario/{id}', [UserController::class, 'atualizarUsuario']);
+    Route::get('/ver-usuario/{id}', [UserController::class, 'verUsuario']);
+    Route::get('/ver-usuarios', [UserController::class, 'verUsuarios']);
+
 
     Route::post('/cadastrar-tarefa', [TaskController::class, 'register']);
     Route::delete('/deletar-tarefa/{id}', [TaskController::class, 'delete']);
@@ -38,4 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/ver-status/{id}', [StatusController::class, 'verStatus']);
     Route::get('/ver-todos-status', [StatusController::class, 'verStatusTodos']);
 
+    Route::post('/mudar-coluna', [StatusHistoryController::class, 'register']);
+    Route::put('/atualizar-comentario/{id}', [StatusHistoryController::class, 'update']);
+    Route::delete('/deletar-historico/{id}', [StatusHistoryController::class, 'delete']);
+    Route::get('/ver-historico', [StatusHistoryController::class, 'index']);
 });
