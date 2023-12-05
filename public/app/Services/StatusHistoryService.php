@@ -30,7 +30,7 @@
 
             $usuario = Auth::user();
 
-            $temTarefa = $usuario->task->where('id', $dados->input('task_id'))->first();
+            $temTarefa = $usuario->empresas->task->where('id', $dados->input('task_id'))->first();
 
             $this->saida($temTarefa->id);
 
