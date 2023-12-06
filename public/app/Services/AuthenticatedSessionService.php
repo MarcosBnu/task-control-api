@@ -20,11 +20,13 @@
             if (Auth::attempt($credentials)) {
                 // Se as credenciais estiverem corretas, gere e retorne o token
                 $token = $request->user()->createToken('auth-token')->plainTextToken;
-                return response()->json(['token' => $token, 'message' => 'Login successful']);
+                return response()->json([
+                'status'  => 'OK',
+                'token' => $token, 'message' => 'Login successful']);
 
             } else {
                 // Se as credenciais estiverem incorretas, retorne uma resposta de erro
-                return response()->json(['error' => 'Invalid credentials'], 401);
+                return response()->json(['status'  => 'ERROR', 'message' => 'Invalid credentials'], 401);
                 
             }
         }

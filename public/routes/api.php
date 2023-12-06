@@ -22,21 +22,21 @@ use App\Http\Controllers\Api\StatusHistoryController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::post('/register', [EmpresaController::class, 'register']);
+Route::post('/registrar-empresa', [EmpresaController::class, 'register']);
 Route::post('/login', [AuthenticatedSessionController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/ver-empresa', [EmpresaController::class, 'index']);
     Route::put('/atualizar-empresa', [EmpresaController::class, 'update']);
-    Route::delete('/delete-empresa', [EmpresaController::class, 'destroy']);
+    Route::delete('/deletar-empresa', [EmpresaController::class, 'destroy']);
 
 
-    Route::post('/register-usuario', [UserController::class, 'registerUsuario']);
-    Route::delete('/delete-usuario/{id}', [UserController::class, 'deleteUsuario']);
-    Route::put('/atualizar-usuario/{id}', [UserController::class, 'atualizarUsuario']);
-    Route::get('/ver-usuario/{id}', [UserController::class, 'verUsuario']);
-    Route::get('/ver-usuarios', [UserController::class, 'verUsuarios']);
+    Route::post('/registrar-usuario', [UserController::class, 'registerUsuario']);
+    Route::delete('/deletar-usuario/{id}', [UserController::class, 'destroy']);
+    Route::put('/atualizar-usuario/{id}', [UserController::class, 'update']);
+    Route::get('/ver-usuario/{id}', [UserController::class, 'index']);
+    Route::get('/ver-usuarios', [UserController::class, 'indexs']);
 
 
     Route::post('/cadastrar-tarefa', [TaskController::class, 'register']);

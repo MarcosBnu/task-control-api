@@ -31,7 +31,9 @@
 
             if ($validator->fails()) {
                 // Se a validação falhar, lance uma exceção
-                throw new Exception($validator->errors()->first());
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
             // Se a validação for bem-sucedida, crie o usuário
             $user = User::create([
@@ -42,7 +44,11 @@
                 'tipoUsuario' =>$request->input('tipoUsuario')
             ]);
 
-            return $user;
+            return response()->json([
+                'status'  => 'OK',
+                'mensagem' => 'Usuário cadastrado com sucesso!',
+                'user' => $user
+            ]);
         }
 
         public function deletarUsuario($dados){
@@ -55,27 +61,28 @@
 
             if ($validator->fails()) {
 
-                throw new Exception($validator->errors()->first());
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
 
             }
 
             $usuarioDelete = $usuarioId->empresas->users->where('id', $dados)->first();
-
-            if($usuarioId->id == $dados){
-
-                return response()->json(['mensagem' => 'Usuario não encontrada ou não autorizada'], 404);
-                
-            }
             
             if (!$usuarioDelete) {
 
-                return response()->json(['mensagem' => 'Usuario não encontrada ou não autorizada'], 404);
+                return response()->json([                    
+                    'status'  => 'ERRO',
+                    'mensagem' => 'usuario não encontrada ou não autorizada'], 404);
             
             }
 
             $usuarioDelete->delete();
 
-            return response()->json(['mensagem' => 'Usuario deletado com sucesso']);
+            return response()->json([
+                'status'  => 'OK',
+                'mensagem' => 'Usuario deletado com sucesso']
+            );
 
         }
 
@@ -84,13 +91,20 @@
             $usuario = Auth::user();
 
             if (!$dados->isJson()) {
-                return response()->json(['mensagem' => 'A solicitação não contém um corpo JSON válido'], 400);
+                return response()->json([
+                'status'  => 'ERRO',
+                'mensagem' => 'A solicitação não contém um corpo JSON válido'], 400);
             }
         
             $jsonArray = json_decode($dados->getContent(), true);
             
             if (empty($jsonArray)) {
-                return response()->json(['mensagem' => 'JSON vazio'], 404);
+
+                return response()->json([
+                'status'  => 'ERRO',
+                'mensagem' => 'JSON vazio'
+                ], 404);
+
             }
             
             $dados['user_id'] = $usuario->id;
@@ -107,7 +121,9 @@
 
             if ($validator->fails()) {
                 // Se a validação falhar, lance uma exceção
-                throw new Exception($validator->errors()->first());
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             
             }
 
@@ -115,13 +131,18 @@
 
             if (!$usuarioAtualizar) {
                 
-                return response()->json(['mensagem' => 'usuario não encontrada ou não autorizada'], 404);
+                return response()->json([                    
+                    'status'  => 'ERRO',
+                    'mensagem' => 'usuario não encontrada ou não autorizada'
+                ], 404);
 
             }
 
             $usuarioAtualizar->update($dados->only(['name', 'email', 'password', 'tipoUsuario']));
 
-            return response()->json(['mensagem' => 'usuario atualizado com sucesso']);
+            return response()->json([
+                'status'  => 'OK',
+                'mensagem' => 'usuario atualizado com sucesso']);
 
         }
 
@@ -135,7 +156,9 @@
 
             if ($validator->fails()) {
                 
-                throw new Exception($validator->errors()->first());
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
 
             }
 
@@ -143,11 +166,16 @@
 
             if (!$usuarioJson) {
 
-                return response()->json(['mensagem' => 'Usuario não encontrada ou não autorizada'], 404);
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => 'Usuario não encontrada ou não autorizada'], 404);
             
             }
 
-            return response()->json(['Usuario' => $usuarioJson]);
+            return response()->json([
+                'status'  => 'OK',
+                'mensagem' => $usuarioJson
+            ]);
 
         }
 
@@ -159,11 +187,16 @@
 
             if (!$usuarioJson) {
 
-                return response()->json(['mensagem' => 'Usuario não encontrada ou não autorizada'], 404);
+                return response()->json([
+                    'status'  => 'OK',
+                    'mensagem' => 'Usuario não encontrada ou não autorizada'], 404);
             
             }
 
-            return response()->json(['Usuario' => $usuarioJson]);
+            return response()->json([
+                'status'  => 'OK',
+                'mensagem' => $usuarioJson
+            ]);
 
         }
 

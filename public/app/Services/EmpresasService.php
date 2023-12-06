@@ -20,9 +20,13 @@
                 'cnpj' => 'required|unique:empresas',
             ]);
 
+            //validar email repetido
+            
             if ($validator->fails()) {
                 // Se a validação falhar, lance uma exceção
-                throw new Exception($validator->errors()->first());
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
             // Se a validação for bem-sucedida, crie o usuário
@@ -35,7 +39,11 @@
 
             $request['tipoUsuario'] = 'admin';
 
-            return $usuario->registerUser($request, $user->id);
+            $usuario->registerUser($request, $user->id);
+
+            return response()->json([
+                'status'  => 'OK',
+                'mensagem' => 'Empresa cadastrada com sucesso!'], 201);
         }
 
         public function getEmpresa(){
@@ -44,7 +52,9 @@
 
             $statusDoUsuario = $usuario->empresas;
 
-            return response()->json(['empresa' => $statusDoUsuario]);
+            return response()->json([
+            'status'  => 'OK',
+            'mensagem' => $statusDoUsuario]);
         }
 
         public function atualizarEmpresa(Request $dados){
@@ -52,13 +62,17 @@
             $usuario = Auth::user();
 
             if (!$dados->isJson()) {
-                return response()->json(['mensagem' => 'A solicitação não contém um corpo JSON válido'], 400);
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => 'A solicitação não contém um corpo JSON válido'], 400);
             }
         
             $jsonArray = json_decode($dados->getContent(), true);
             
             if (empty($jsonArray)) {
-                return response()->json(['mensagem' => 'JSON vazio'], 404);
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => 'JSON vazio'], 404);
             }
 
             $validator = Validator::make($dados->all(), [
@@ -68,29 +82,44 @@
 
             if ($validator->fails()) {
                 // Se a validação falhar, lance uma exceção
-                throw new Exception($validator->errors()->first());
-            
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
             $empresa = $usuario->empresas;
 
             if (!$empresa) {
-                return response()->json(['mensagem' => 'empresa não encontrada ou não autorizada'], 404);
+                return response()->json([                    
+                    'status'  => 'ERRO',
+                    'mensagem' => 'empresa não encontrada ou não autorizada'], 404);
             }
 
             $empresa->update($dados->only(['name', 'cnpj']));
 
-            return response()->json(['mensagem' => 'Empresa atualizado com sucesso']);
+            return response()->json([
+                'status'  => 'OK',
+                'mensagem' => 'Empresa atualizado com sucesso']);
 
         }
 
         public function deletarEmpresa(){
-
+            
             $usuario = Auth::user();
-
-            $usuario->empresas->delete();
-
-            return response()->json(['mensagem' => 'Empresa deletada com sucesso']);
-
+            $empresa = $usuario->empresas;
+        
+            if (!$empresa) {
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => 'Empresa não encontrada ou não autorizada'
+                ], 404);
+            }
+        
+            $empresa->delete();
+        
+            return response()->json([
+                'status'  => 'OK',
+                'mensagem' => 'Empresa deletada com sucesso'
+            ]);
         }
     }

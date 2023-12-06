@@ -32,7 +32,7 @@
 
             $temTarefa = $usuario->empresas->task->where('id', $dados->input('task_id'))->first();
 
-            $this->saida($temTarefa->id);
+            self::saida($temTarefa->id);
 
             //cria o novo registro
             StatusHistory::create([

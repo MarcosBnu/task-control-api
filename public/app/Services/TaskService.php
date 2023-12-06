@@ -57,6 +57,20 @@
 
             $dados['finalizada'] = $dados['finalizada'] ?? false;
 
+            if($dados['finalizada'] && !$dados['dataFinalizado']){
+            
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => 'Voce não pode finalizar uma tarefa sem passar a data de termino'], 422);
+            
+            }
+
+            if(!$dados['finalizada'] && $dados['dataFinalizado']){
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => 'Voce não pode passar a data de termino sem finalizar a tarefa'], 422);
+            }
+
             $validator = Validator::make($dados->all(), [
                 'empresa_id' => 'required|exists:empresas,id',
                 'nome' => 'required|string|min:1',
@@ -68,27 +82,23 @@
 
             if ($validator->fails()) {
                 // Se a validação falhar, lance uma exceção
-                throw new Exception($validator->errors()->first());
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
-            if($usuario->empresas->status->where('id', $dados->input('status_id'))->first()){
+            $task = Task::create([
+                'nome' => $dados->input('nome'),
+                'descricao' => $dados->input('descricao'),
+                'finalizada' => $dados->input('finalizada'),
+                'dataFinalizado' => $dados->input('dataFinalizado'),
+                'dataDeEntrega' => $dados->input('dataDeEntrega'),
+                'empresa_id' => $dados->input('empresa_id')
+            ]);
 
-                $task = Task::create([
-                    'nome' => $dados->input('nome'),
-                    'descricao' => $dados->input('descricao'),
-                    'finalizada' => $dados->input('finalizada'),
-                    'dataFinalizado' => $dados->input('dataFinalizado'),
-                    'dataDeEntrega' => $dados->input('dataDeEntrega'),
-                    'empresa_id' => $dados->input('empresa_id')
-                ]);
-    
-                return response()->json(['message' => 'Tarefa cadastrada com sucesso!']);
-
-            } else {
-
-                return response()->json(['message' => 'status invalido!']);
-
-            }
+            return response()->json([
+                'status'  => 'OK',
+                'mensagem' => 'Task cadastrada com sucesso!'], 201);
 
 
         }
