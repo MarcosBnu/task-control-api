@@ -1,4 +1,7 @@
+cd public
+cp .env.example .env
 sudo docker-compose up -d
 sudo docker-compose exec app bash
 composer install
+composer require "darkaonline/l5-swagger"
 php artisan key:generate
