@@ -18,6 +18,7 @@
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string',
                 'cnpj' => 'required|unique:empresas',
+                'email' => 'required|email|unique:users',
             ]);
 
             //validar email repetido

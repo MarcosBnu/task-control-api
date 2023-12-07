@@ -81,7 +81,7 @@
 
             return response()->json([                
             'status'  => 'OK',
-            'mensagem' => 'Status cadastrada com sucesso!']);
+            'mensagem' => 'Status cadastrada com sucesso!'], 201);
 
         }
 

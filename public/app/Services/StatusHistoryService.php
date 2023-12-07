@@ -177,7 +177,22 @@
 
             $usuario = Auth::user();
 
-            return response()->json(['status' => 'OK', 'mensagem' => $usuario->empresas->statushistory]);
+            $colecaoOrdenada = $usuario->empresas->statushistory->toArray();
+
+            usort($colecaoOrdenada, function ($a, $b) {
+
+                $resultado = $a['task_id'] - $b['task_id'];
+
+                if ($resultado === 0) {
+                    return strtotime($a['saida']) - strtotime($b['saida']);
+                }
+
+                return $resultado;
+            });
+
+            $colecaoOrdenada = collect($colecaoOrdenada);
+
+            return response()->json(['status' => 'OK', 'mensagem' => $colecaoOrdenada]);
 
         }
 

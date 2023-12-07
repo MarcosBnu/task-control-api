@@ -6,3 +6,7 @@ composer install
 composer require "darkaonline/l5-swagger"
 php artisan key:generate
 php artisan migrate
+
+
+
+Voltar as migrate == php artisan migrate:refresh
