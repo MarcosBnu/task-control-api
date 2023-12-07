@@ -40,19 +40,19 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::post('/cadastrar-tarefa', [TaskController::class, 'register']);
-    Route::delete('/deletar-tarefa/{id}', [TaskController::class, 'delete']);
-    Route::put('/atualizar-tarefa/{id}', [TaskController::class, 'atualizar']);
-    Route::get('/ver-tarefa/{id}', [TaskController::class, 'tarefa']);
-    Route::get('/ver-tarefas', [TaskController::class, 'tarefas']);
+    Route::delete('/deletar-tarefa/{id}', [TaskController::class, 'destroy']);
+    Route::put('/atualizar-tarefa/{id}', [TaskController::class, 'update']);
+    Route::get('/ver-tarefa/{id}', [TaskController::class, 'index']);
+    Route::get('/ver-tarefas', [TaskController::class, 'indexs']);
 
     Route::post('/cadastrar-status', [StatusController::class, 'register']);
-    Route::delete('/deletar-status/{id}', [StatusController::class, 'delete']);
-    Route::put('/atualizar-status/{id}', [StatusController::class, 'atualizar']);
-    Route::get('/ver-status/{id}', [StatusController::class, 'verStatus']);
-    Route::get('/ver-todos-status', [StatusController::class, 'verStatusTodos']);
+    Route::delete('/deletar-status/{id}', [StatusController::class, 'destroy']);
+    Route::put('/atualizar-status/{id}', [StatusController::class, 'update']);
+    Route::get('/ver-status/{id}', [StatusController::class, 'index']);
+    Route::get('/ver-todos-status', [StatusController::class, 'indexs']);
 
-    Route::post('/mudar-coluna', [StatusHistoryController::class, 'register']);
-    Route::put('/atualizar-comentario/{id}', [StatusHistoryController::class, 'update']);
+    Route::post('/registrar-historico', [StatusHistoryController::class, 'register']);
+    Route::put('/alterar-comentario/{id}', [StatusHistoryController::class, 'update']);
     Route::delete('/deletar-historico/{id}', [StatusHistoryController::class, 'delete']);
     Route::get('/ver-historico', [StatusHistoryController::class, 'index']);
 });

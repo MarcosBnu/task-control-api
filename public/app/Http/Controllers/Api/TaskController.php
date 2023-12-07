@@ -16,7 +16,40 @@ class TaskController extends Controller
         $this->taskService = $taskService;
     }
 
-    public function tarefas(){
+    /**
+     * @OA\Get(
+     *     path="/ver-tarefas",
+     *     summary="Ver todas as tarefas",
+     *     tags={"Tasks"},
+     *     security={{ "bearerToken":{} }},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de todas as tarefas",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="OK"),
+     *             @OA\Property(property="mensagem", type="array", @OA\Items(ref="#/components/schemas/Task")),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Token de acesso ausente ou inválido")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro interno no servidor")
+     *         ),
+     *     ),
+     * )
+     */
+
+    public function indexs(){
 
         try{
             
@@ -32,7 +65,54 @@ class TaskController extends Controller
         
     }
 
-    public function tarefa($id){
+    /**
+     * @OA\Get(
+     *     path="/ver-tarefa/{id}",
+     *     summary="Ver detalhes de uma tarefa",
+     *     tags={"Tasks"},
+     *     security={{ "bearerToken":{} }},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID da tarefa a ser visualizada",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Detalhes da tarefa",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="OK"),
+     *             @OA\Property(property="mensagem", type="object", ref="#/components/schemas/Task"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Token de acesso ausente ou inválido")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Tarefa não encontrada",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Tarefa não encontrada ou não autorizada")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro interno no servidor")
+     *         ),
+     *     ),
+     * )
+     */
+    public function index($id){
 
         try{
 
@@ -116,7 +196,54 @@ class TaskController extends Controller
  
     }
 
-    public function delete($id){
+    /**
+     * @OA\Delete(
+     *     path="/deletar-tarefa/{id}",
+     *     summary="Deletar uma tarefa",
+     *     tags={"Tasks"},
+     *     security={{ "bearerToken":{} }},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID da tarefa a ser deletada",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Tarefa deletada com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="OK"),
+     *             @OA\Property(property="mensagem", type="string", example="Tarefa deletada com sucesso")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Token de acesso ausente ou inválido")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Tarefa não encontrada",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Tarefa não encontrada ou não autorizada")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro interno no servidor")
+     *         ),
+     *     ),
+     * )
+     */
+    public function destroy($id){
 
         try{
             
@@ -134,7 +261,77 @@ class TaskController extends Controller
  
     }
 
-    public function atualizar(Request $dados, $id){
+    /**
+     * @OA\Put(
+     *     path="/atualizar-tarefa/{id}",
+     *     summary="Atualizar uma tarefa",
+     *     tags={"Tasks"},
+     *     security={{ "bearerToken":{} }},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID da tarefa a ser atualizada",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Corpo da requisição contendo os dados da tarefa a ser atualizada",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(property="nome", type="string", example="Nova Tarefa"),
+     *                 @OA\Property(property="descricao", type="string", example="Descrição da nova tarefa"),
+     *                 @OA\Property(property="finalizada", type="boolean", example=true),
+     *                 @OA\Property(property="dataFinalizado", type="string", format="date", example="2023-11-09"),
+     *                 @OA\Property(property="dataDeEntrega", type="string", format="date", example="2023-12-01"),
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Tarefa atualizada com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="OK"),
+     *             @OA\Property(property="mensagem", type="string", example="Tarefa atualizada com sucesso")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Token de acesso ausente ou inválido")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Tarefa não encontrada",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Tarefa não encontrada ou não autorizada")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erro de validação",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Os dados fornecidos são inválidos")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro interno no servidor")
+     *         ),
+     *     ),
+     * )
+     */
+    public function update(Request $dados, $id){
 
         try{
             

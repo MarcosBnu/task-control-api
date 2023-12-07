@@ -19,7 +19,9 @@
             //so validar o tipo de usuario
             $tarefasDoUsuario = $usuario->empresas->tasks;
 
-            return response()->json(['tarefas' => $tarefasDoUsuario]);
+            return response()->json([
+            'status'  => 'OK',
+            'mensagem' => $tarefasDoUsuario]);
 
         }
 
@@ -32,20 +34,25 @@
             ]);
 
             if ($validator->fails()) {
-                
-                throw new Exception($validator->errors()->first());
-
+                // Se a validação falhar, lance uma exceção
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
             //so validar o tipo de usuario
             $tarefaDoUsuario = $usuario->empresas->tasks->where('id', $id)->first();
 
             if (!$tarefaDoUsuario) {
 
-                return response()->json(['mensagem' => 'Tarefa não encontrada ou não autorizada'], 404);
+                return response()->json([                    
+                'status'  => 'ERRO',
+                'mensagem' => 'Tarefa não encontrada ou não autorizada'], 404);
             
             }
 
-            return response()->json(['tarefa' => $tarefaDoUsuario]);
+            return response()->json([
+                'status'  => 'OK',
+                'mensagem' => $tarefaDoUsuario]);
 
         }
 
@@ -112,22 +119,27 @@
             ]);
 
             if ($validator->fails()) {
-
-                throw new Exception($validator->errors()->first());
-
+                // Se a validação falhar, lance uma exceção
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
             $tarefaDelete = $usuarioId->empresas->tasks->where('id', $dados)->first();
 
             if (!$tarefaDelete) {
 
-                return response()->json(['mensagem' => 'Tarefa não encontrada ou não autorizada'], 404);
+                return response()->json([                
+                'status'  => 'ERRO',
+                'mensagem' => 'Tarefa não encontrada ou não autorizada'], 404);
             
             }
 
             $tarefaDelete->delete();
 
-            return response()->json(['mensagem' => 'Tarefa deletada com sucesso']);
+            return response()->json([                
+            'status'  => 'OK',
+            'mensagem' => 'Tarefa deletada com sucesso']);
 
         }
 
@@ -136,13 +148,33 @@
             $usuario = Auth::user();
 
             if (!$dados->isJson()) {
-                return response()->json(['mensagem' => 'A solicitação não contém um corpo JSON válido'], 400);
+                return response()->json([                    
+                'status'  => 'ERRO',
+                'mensagem' => 'A solicitação não contém um corpo JSON válido'], 400);
             }
         
             $jsonArray = json_decode($dados->getContent(), true);
             
             if (empty($jsonArray)) {
-                return response()->json(['mensagem' => 'JSON vazio'], 404);
+                return response()->json([
+                'status'  => 'ERRO',
+                'mensagem' => 'JSON vazio'], 404);
+            }
+
+            $dados['finalizada'] = $dados['finalizada'] ?? false;
+
+            if($dados['finalizada'] && !$dados['dataFinalizado']){
+            
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => 'Voce não pode finalizar uma tarefa sem passar a data de termino'], 422);
+            
+            }
+
+            if(!$dados['finalizada'] && $dados['dataFinalizado']){
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => 'Voce não pode passar a data de termino sem finalizar a tarefa'], 422);
             }
 
             $dados['id'] = $id;
@@ -158,8 +190,9 @@
 
             if ($validator->fails()) {
                 // Se a validação falhar, lance uma exceção
-                return response()->json(['message' => 'Dados inválidos', 'errors' => $validator->errors()], 400);
-            
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
             $tarefa = $usuario->empresas->tasks->where('id', $id)->first();
@@ -170,7 +203,9 @@
 
             $tarefa->update($dados->only(['nome', 'descricao', 'finalizada', 'dataDeEntrega']));
 
-            return response()->json(['mensagem' => 'Tarefa atualizada com sucesso']);
+            return response()->json([
+            'status'  => 'OK',
+            'mensagem' => 'Tarefa atualizada com sucesso']);
 
         }
 

@@ -18,21 +18,135 @@ class StatusController extends Controller
         $this->statusService = $statusService;
     }
 
+
+    /**
+     * @OA\Post(
+     *     path="/cadastrar-status",
+     *     summary="Cadastrar novo Status",
+     *     tags={"Status"},
+     *     security={{ "bearerToken":{} }},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Dados para cadastrar um novo Status",
+     *         @OA\JsonContent(
+     *             required={"nome", "descricao"},
+     *             @OA\Property(property="nome", type="string", description="Nome do Status"),
+     *             @OA\Property(property="descricao", type="string", description="Descrição do Status"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Status cadastrado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="OK"),
+     *             @OA\Property(property="mensagem", type="string", example="Status cadastrado com sucesso!"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Erro de validação",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="A solicitação não contém um corpo JSON válido"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Token de acesso ausente ou inválido"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erro de validação",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro de validação"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro interno no servidor"),
+     *         ),
+     *     ),
+     * )
+     */
     public function register(Request $request)
     {
         try {
 
-            $this->statusService->cadastrarStatus($request);
-
-            return response()->json(['message' => 'Status cadastrado com sucesso!']);
+            return $this->statusService->cadastrarStatus($request);
 
         } catch (Exception $e) {
             
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'status'  => 'ERRO',
+                'mensagem' => $e->getMessage()], 500);        
         }
     }
-
-    public function delete($id){
+    /**
+     * @OA\Delete(
+     *     path="/deletar-status/{id}",
+     *     summary="Deletar Status",
+     *     tags={"Status"},
+     *     security={{ "bearerToken":{} }},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID do Status a ser deletado",
+     *         @OA\Schema(
+     *             type="integer",
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Status deletado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="OK"),
+     *             @OA\Property(property="mensagem", type="string", example="Status deletado com sucesso"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Token de acesso ausente ou inválido"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Status não encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Status não encontrado"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erro de validação",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro de validação"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro interno no servidor"),
+     *         ),
+     *     ),
+     * )
+     */
+    public function destroy($id){
 
         try{
             
@@ -42,13 +156,80 @@ class StatusController extends Controller
             
         } catch(Exception $e){
 
-            return response()->json(['error' => $e->getMessage()]);
-
+            return response()->json([
+                'status'  => 'ERRO',
+                'mensagem' => $e->getMessage()], 500);
         }
  
     }
 
-    public function atualizar(Request $request, $id)
+    /**
+     * @OA\Put(
+     *     path="/atualizar-status/{id}",
+     *     summary="Atualizar Status",
+     *     tags={"Status"},
+     *     security={{ "bearerToken":{} }},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID do Status a ser atualizado",
+     *         @OA\Schema(
+     *             type="integer",
+     *         ),
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Corpo da requisição contendo os dados para atualização do Status",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="nome", type="string", example="Novo Nome"),
+     *             @OA\Property(property="descricao", type="string", example="Nova Descrição"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Status atualizado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="OK"),
+     *             @OA\Property(property="mensagem", type="string", example="Status atualizado com sucesso"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Token de acesso ausente ou inválido"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Status não encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Status não encontrado"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erro de validação",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro de validação"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro interno no servidor"),
+     *         ),
+     *     ),
+     * )
+     */
+
+    public function update(Request $request, $id)
     {
         try {
 
@@ -56,11 +237,70 @@ class StatusController extends Controller
 
         } catch (Exception $e) {
             
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'status'  => 'ERRO',
+                'mensagem' => $e->getMessage()], 500);
         }
     }
 
-    public function verStatus($id)
+/**
+ * @OA\Get(
+ *     path="/ver-status/{id}",
+ *     summary="Ver Status",
+ *     tags={"Status"},
+ *     security={{ "bearerToken":{} }},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="ID do Status a ser visualizado",
+ *         @OA\Schema(
+ *             type="integer",
+ *         ),
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Status encontrado com sucesso",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="string", example="OK"),
+ *             @OA\Property(property="mensagem", type="object", ref="#/components/schemas/Status"),
+ *         ),
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Não autorizado",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="string", example="ERRO"),
+ *             @OA\Property(property="mensagem", type="string", example="Token de acesso ausente ou inválido"),
+ *         ),
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Status não encontrado",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="string", example="ERRO"),
+ *             @OA\Property(property="mensagem", type="string", example="Status não encontrado"),
+ *         ),
+ *     ),
+ *     @OA\Response(
+ *         response=422,
+ *         description="Erro de validação",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="string", example="ERRO"),
+ *             @OA\Property(property="mensagem", type="string", example="Os dados fornecidos não são válidos"),
+ *         ),
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Erro interno no servidor",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="string", example="ERRO"),
+ *             @OA\Property(property="mensagem", type="string", example="Erro interno no servidor"),
+ *         ),
+ *     ),
+ * )
+ */
+    public function index($id)
     {
         try {
 
@@ -68,11 +308,46 @@ class StatusController extends Controller
 
         } catch (Exception $e) {
             
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'status'  => 'ERRO',
+                'mensagem' => $e->getMessage()], 500);
         }
     }
 
-    public function verStatusTodos()
+    /**
+     * @OA\Get(
+     *     path="/ver-todos-status",
+     *     summary="Ver Todos os Status",
+     *     tags={"Status"},
+     *     security={{ "bearerToken":{} }},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de status encontrada com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="OK"),
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Status")),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Token de acesso ausente ou inválido"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro interno no servidor"),
+     *         ),
+     *     ),
+     * )
+    */
+
+    public function indexs()
     {
         try {
 
@@ -80,7 +355,9 @@ class StatusController extends Controller
 
         } catch (Exception $e) {
             
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'status'  => 'ERRO',
+                'mensagem' => $e->getMessage()], 500);
         }
     }
 }

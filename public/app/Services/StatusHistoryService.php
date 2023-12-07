@@ -18,43 +18,66 @@
 
             $validator = Validator::make($dados->all(), [
                 'status_id' =>  'required|exists:status,id',
-                'task_id' =>  'required|exists:task,id',
+                'task_id' =>  'required|exists:tasks,id',
                 'comentario'=> 'required|string|min:1'
             ]);
             
             if ($validator->fails()) {
                 // Se a validação falhar, lance uma exceção
-                return response()->json(['message' => 'Dados inválidos', 'errors' => $validator->errors()], 400);
-            
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
             $usuario = Auth::user();
 
-            $temTarefa = $usuario->empresas->task->where('id', $dados->input('task_id'))->first();
+            $temTarefa = $usuario->empresas->tasks->where('id', $dados->input('task_id'))->first();
 
-            self::saida($temTarefa->id);
+            if($temTarefa){
+
+                $retorno = self::saida($dados->input('task_id'), $dados->input('status_id'));
+
+                if(!$retorno){
+
+                    return response()->json([
+                        'status'  => 'ERRO',
+                        'mensagem' => 'Essa tarefa ja pertence a esse status'], 422);
+
+                }
+                
+            }
 
             //cria o novo registro
             StatusHistory::create([
                 'user_id'   => $usuario->id,
                 'task_id'   => $dados->input('task_id'),
                 'status_id' => $dados->input('status_id'),
-                'empresa_id'=> $usuario->empresa->id,
+                'empresa_id'=> $usuario->empresas->id,
                 'comentario'=> $dados->input('comentario')
             ]);
 
-            return response()->json(['mensagem' => 'Tarefa em produção','status' => $dados->input('status_id')]);
+            return response()->json(['status'  => 'OK', 'mensagem' => 'Tarefa mudou de status']);
 
         }
 
-        private final function saida($task){
+        private final function saida($task, $newStatus){
  
             $statusAntigo = StatusHistory::where('task_id', $task)
                 ->whereNull('saida')->first();
 
             if($statusAntigo){
 
-                $statusAntigo->update(['saida' => now()]);
+                if($statusAntigo->status_id == $newStatus){
+
+                    return false;
+
+                } else {
+
+                    $statusAntigo->update(['saida' => now()]);
+
+                    return true;
+                }
+
 
             }
         }
@@ -64,13 +87,17 @@
             $usuario = Auth::user();
 
             if (!$dados->isJson()) {
-                return response()->json(['mensagem' => 'A solicitação não contém um corpo JSON válido'], 400);
+                return response()->json([                    
+                    'status'  => 'ERRO',
+                    'mensagem' => 'A solicitação não contém um corpo JSON válido'], 400);
             }
         
             $jsonArray = json_decode($dados->getContent(), true);
             
             if (empty($jsonArray)) {
-                return response()->json(['mensagem' => 'JSON vazio'], 404);
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => 'JSON vazio'], 404);
             }
 
             $dados['id'] = $id;
@@ -82,31 +109,33 @@
 
             if ($validator->fails()) {
                 // Se a validação falhar, lance uma exceção
-                return response()->json(['message' => 'Dados inválidos', 'errors' => $validator->errors()], 400);
-            
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
             $historico = $usuario->statushistory->where('id', $id)->first();
 
             if (!$historico) {
-                return response()->json(['mensagem' => 'Historico não encontrada ou não autorizada'], 404);
+                return response()->json(['status'  => 'ERRO', 'mensagem' => 'Historico não encontrada ou não autorizada'], 404);
             }
 
             $historico->update($dados->only(['comentario']));
 
-            return response()->json(['mensagem' => 'Comentario do historico atualizado com sucesso']);
+            return response()->json(['status'  => 'OK', 'mensagem' => 'Comentario atualizado com sucesso']);
         }
 
         public final function deletarHistorico($id){
 
-            $validator = Validator::make($id, [
-                'id'    => 'required|numeric',
+            $validator = Validator::make(['id' => $id], [
+                'id'      => 'required|numeric',  
             ]);
 
             if ($validator->fails()) {
                 // Se a validação falhar, lance uma exceção
-                return response()->json(['message' => 'Dados inválidos', 'errors' => $validator->errors()], 400);
-            
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
             
             $usuario = Auth::user();
@@ -115,18 +144,18 @@
 
             if(!$historico){
 
-                return response()->json(['message' => 'Dados inválidos ou não encontrados', 'errors' => $validator->errors()], 400);
+                return response()->json(['status' => 'ERRO', 'mensagem' => 'Dados inválidos ou não encontrados', 'errors' => $validator->errors()], 400);
 
             }
             else if($historico->saida == null){
 
-                return response()->json(['message' => 'Atualize o status da tarefa: '.$historico->task_id . ' para poder realizar essa exclusão', 'errors' => $validator->errors()], 400);
+                return response()->json(['status' => 'ERRO', 'mensagem' => 'Atualize o status da tarefa: '.$historico->task_id . ' para poder realizar essa exclusão'], 422);
             
             } else {
 
                 $historico->delete();
 
-                return response()->json(['message' => 'Historico excluido com sucesso!']);
+                return response()->json(['status' => 'OK', 'mensagem' => 'Historico excluido com sucesso!']);
             }
 
         }
@@ -135,7 +164,7 @@
 
             $usuario = Auth::user();
 
-            return response()->json(['historico' => $usuario->tasks->statushistory]);
+            return response()->json(['status' => 'OK', 'mensagem' => $usuario->empresas->statushistory]);
 
         }
 

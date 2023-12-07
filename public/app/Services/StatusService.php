@@ -20,7 +20,7 @@
 
             $statusDoUsuario = $usuario->empresas->status;
 
-            return response()->json(['status' => $statusDoUsuario]);
+            return response()->json(['status'  => 'ERRO', 'mensagem' => $statusDoUsuario]);
 
         }
         
@@ -33,20 +33,23 @@
             ]);
 
             if ($validator->fails()) {
-                
-                throw new Exception($validator->errors()->first());
-
+                // Se a validação falhar, lance uma exceção
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
             $statusDoUsuario = $usuario->empresas->status->where('id', $id)->first();
 
             if (!$statusDoUsuario) {
 
-                return response()->json(['mensagem' => 'Status não encontrada ou não autorizada'], 404);
+                return response()->json(['status'  => 'ERRO', 'mensagem' => 'Status não encontrada ou não autorizada'], 404);
             
             }
 
-            return response()->json(['status' => $statusDoUsuario]);
+            return response()->json([
+            'status'  => 'OK',
+            'mensagem' => $statusDoUsuario]);
 
         }
 
@@ -64,7 +67,9 @@
 
             if ($validator->fails()) {
                 // Se a validação falhar, lance uma exceção
-                throw new Exception($validator->errors()->first());
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
             Status::create([
@@ -74,7 +79,9 @@
 
             ]);
 
-            return response()->json(['message' => 'Tarefa cadastrada com sucesso!']);
+            return response()->json([                
+            'status'  => 'OK',
+            'mensagem' => 'Status cadastrada com sucesso!']);
 
         }
 
@@ -87,30 +94,27 @@
             ]);
 
             if ($validator->fails()) {
-
-                throw new Exception($validator->errors()->first());
-
-            }
-
-            $tarefaComStatus = Task::where('status_id', $dados)->where('empresa_id')->first();
-
-            if ($tarefaComStatus) {
-
-                return response()->json(['mensagem' => 'Status vinculado a tarefas'], 404);
-            
+                // Se a validação falhar, lance uma exceção
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
             $status = $usuario->empresas->status->where('id', $dados)->first(); 
 
             if(!$status){
 
-                return response()->json(['mensagem' => 'Status não encontrada ou não autorizada'], 404);
+                return response()->json([            
+                'status'  => 'ERRO',
+                'mensagem' => 'Status não encontrada ou não autorizada'], 404);
 
             }
 
             $status->delete();
 
-            return response()->json(['mensagem' => 'Status deletado com sucesso']);
+            return response()->json([
+            'status'  => 'OK',
+            'mensagem' => 'Status deletado com sucesso']);
 
         }
 
@@ -138,19 +142,20 @@
 
             if ($validator->fails()) {
                 // Se a validação falhar, lance uma exceção
-                throw new Exception($validator->errors()->first());
-            
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
             $status = $usuario->empresas->status->where('id', $id)->first();
 
             if (!$status) {
-                return response()->json(['mensagem' => 'status não encontrada ou não autorizada'], 404);
+                return response()->json(['status'  => 'ERRO', 'mensagem' => 'status não encontrada ou não autorizada'], 404);
             }
 
             $status->update($dados->only(['nome', 'descricao']));
 
-            return response()->json(['mensagem' => 'Status atualizado com sucesso']);
+            return response()->json(['status'  => 'OK', 'mensagem' => 'Status atualizado com sucesso']);
 
         }
     }

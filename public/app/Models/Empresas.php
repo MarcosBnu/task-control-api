@@ -40,4 +40,10 @@ class Empresas extends Model
         return $this->hasMany(User::class, 'empresa_id');
 
     }
+
+    public function statushistory(){
+
+        return $this->hasMany(StatusHistory::class, 'empresa_id');
+
+    }
 }

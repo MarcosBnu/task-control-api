@@ -16,6 +16,55 @@ class StatusHistoryController extends Controller
         $this->taskHistoryService = $taskHistoryService;
     }
 
+    /**
+     * @OA\Post(
+     *     path="/registrar-historico",
+     *     summary="Registrar um novo histórico de status da tarefa",
+     *     tags={"Histórico de Status da tarefa"},
+     *     security={{ "bearerToken":{} }},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="task_id", type="integer", example=1),
+     *             @OA\Property(property="status_id", type="integer", example=1),
+     *             @OA\Property(property="comentario", type="string", example="Comentário obrigatório"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Histórico de status registrado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="OK"),
+     *             @OA\Property(property="mensagem", type="string", example="Histórico de status registrado com sucesso"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erro de validação",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Mensagem de erro específica"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Token de acesso ausente ou inválido")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno no servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro interno no servidor")
+     *         ),
+     *     ),
+     * )
+     */
     public function register(Request $request)
     {
         try {
@@ -26,10 +75,75 @@ class StatusHistoryController extends Controller
 
         } catch (Exception $e) {
             
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+            return response()->json([
+                'status'  => 'ERRO',
+                'mensagem' => $e->getMessage()], 500);        
+            }
     }
-
+/**
+ * @OA\Put(
+ *     path="/alterar-comentario/{id}",
+ *     summary="Atualizar Comentário do Histórico de Status",
+ *     tags={"Histórico de Status da tarefa"},
+ *     security={{ "bearerToken":{} }},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         description="ID do Histórico de Status a ser atualizado",
+ *         required=true,
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\MediaType(
+ *             mediaType="application/json",
+ *             @OA\Schema(
+ *                 @OA\Property(property="comentario", type="string", description="Novo comentário para o histórico de status")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Histórico de Status atualizado com sucesso",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="string", example="OK"),
+ *             @OA\Property(property="mensagem", type="string", example="Comentário do Histórico de Status atualizado com sucesso")
+ *         ),
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Não autorizado",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="string", example="ERRO"),
+ *             @OA\Property(property="mensagem", type="string", example="Token de acesso ausente ou inválido")
+ *         ),
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Histórico de Status não encontrado",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="string", example="ERRO"),
+ *             @OA\Property(property="mensagem", type="string", example="Histórico de Status não encontrado")
+ *         ),
+ *     ),
+ *     @OA\Response(
+ *         response=422,
+ *         description="Erro de validação",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="string", example="ERRO"),
+ *             @OA\Property(property="mensagem", type="string", example="Erro de validação. Detalhes nos campos inválidos.")
+ *         ),
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Erro interno do servidor",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="string", example="ERRO"),
+ *             @OA\Property(property="mensagem", type="string", example="Erro interno do servidor")
+ *         ),
+ *     ),
+ * )
+ */
     public function update(Request $request, $id)
     {
         try {
@@ -40,9 +154,67 @@ class StatusHistoryController extends Controller
 
         } catch (Exception $e) {
             
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+            return response()->json([
+                'status'  => 'ERRO',
+                'mensagem' => $e->getMessage()], 500);        
+            }
     }
+
+    /**
+     * @OA\Delete(
+     *     path="/deletar-historico/{id}",
+     *     summary="Excluir Histórico de Status da tarefa",
+     *     tags={"Histórico de Status da tarefa"},
+     *     security={{ "bearerToken":{} }},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID do Histórico de Status a ser excluído",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Histórico de Status excluído com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="OK"),
+     *             @OA\Property(property="mensagem", type="string", example="Histórico de Status excluído com sucesso")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Token de acesso ausente ou inválido")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Histórico de Status não encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Histórico de Status não encontrado")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erro de validação",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro de validação. Detalhes nos campos inválidos.")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno do servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro interno do servidor")
+     *         ),
+     *     ),
+     * )
+     */
 
     public function delete($id){
 
@@ -54,11 +226,44 @@ class StatusHistoryController extends Controller
             
         } catch(Exception $e){
 
-            return response()->json(['error' => $e->getMessage()]);
-
+            return response()->json([
+                'status'  => 'ERRO',
+                'mensagem' => $e->getMessage()], 500);
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/ver-historico",
+     *     summary="Obter todos os Históricos de Status feitos pelo usuario",
+     *     tags={"Histórico de Status da tarefa"},
+     *     security={{ "bearerToken":{} }},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de todos os Históricos de Status",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="OK"),
+     *             @OA\Property(property="historicos", type="array", @OA\Items(ref="#/components/schemas/StatusHistory")),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Não autorizado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Token de acesso ausente ou inválido")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno do servidor",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="ERRO"),
+     *             @OA\Property(property="mensagem", type="string", example="Erro interno do servidor")
+     *         ),
+     *     ),
+     * )
+     */
     public function index(){
 
         try{
@@ -69,8 +274,9 @@ class StatusHistoryController extends Controller
             
         } catch(Exception $e){
 
-            return response()->json(['error' => $e->getMessage()]);
-
+            return response()->json([
+                'status'  => 'ERRO',
+                'mensagem' => $e->getMessage()], 500);
         }
     }
 }
