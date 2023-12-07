@@ -1187,126 +1187,6 @@
                 ]
             }
         },
-        "/registrar-historico": {
-            "post": {
-                "tags": [
-                    "Histórico de Status da tarefa"
-                ],
-                "summary": "Registrar um novo histórico de status da tarefa",
-                "operationId": "8465048699aa75f0fcc4db5481f150c6",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "task_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "status_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "comentario": {
-                                        "type": "string",
-                                        "example": "Comentário obrigatório"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Histórico de status registrado com sucesso",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "OK"
-                                        },
-                                        "mensagem": {
-                                            "type": "string",
-                                            "example": "Histórico de status registrado com sucesso"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Erro de validação",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "ERRO"
-                                        },
-                                        "mensagem": {
-                                            "type": "string",
-                                            "example": "Mensagem de erro específica"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Não autorizado",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "ERRO"
-                                        },
-                                        "mensagem": {
-                                            "type": "string",
-                                            "example": "Token de acesso ausente ou inválido"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Erro interno no servidor",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "ERRO"
-                                        },
-                                        "mensagem": {
-                                            "type": "string",
-                                            "example": "Erro interno no servidor"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerToken": []
-                    }
-                ]
-            }
-        },
         "/alterar-comentario/{id}": {
             "put": {
                 "tags": [
@@ -1858,6 +1738,10 @@
                                         "type": "string",
                                         "example": "Minha Tarefa"
                                     },
+                                    "status_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
                                     "descricao": {
                                         "description": "Descrição da tarefa",
                                         "type": "string",
@@ -2211,6 +2095,126 @@
                                         "mensagem": {
                                             "type": "string",
                                             "example": "Os dados fornecidos são inválidos"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno no servidor",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ERRO"
+                                        },
+                                        "mensagem": {
+                                            "type": "string",
+                                            "example": "Erro interno no servidor"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ]
+            }
+        },
+        "/mudar-status": {
+            "post": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Registrar um novo histórico de status da tarefa",
+                "operationId": "504be0f608675072bd1c3ff057686f66",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "task_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "status_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "comentario": {
+                                        "type": "string",
+                                        "example": "Comentário obrigatório"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Histórico de status registrado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "OK"
+                                        },
+                                        "mensagem": {
+                                            "type": "string",
+                                            "example": "Histórico de status registrado com sucesso"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ERRO"
+                                        },
+                                        "mensagem": {
+                                            "type": "string",
+                                            "example": "Mensagem de erro específica"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ERRO"
+                                        },
+                                        "mensagem": {
+                                            "type": "string",
+                                            "example": "Token de acesso ausente ou inválido"
                                         }
                                     },
                                     "type": "object"
@@ -3064,6 +3068,10 @@
                     },
                     "empresa_id": {
                         "description": "ID da Empresa associada à Tarefa",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "status_id": {
                         "type": "integer",
                         "example": 1
                     },

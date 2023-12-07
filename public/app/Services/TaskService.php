@@ -81,6 +81,7 @@
             $validator = Validator::make($dados->all(), [
                 'empresa_id' => 'required|exists:empresas,id',
                 'nome' => 'required|string|min:1',
+                'status_id' =>  'required|exists:status,id',
                 'descricao' => 'required|string|min:1',
                 'finalizada' => 'nullable|boolean',
                 'dataFinalizado' => 'nullable|date',
@@ -94,14 +95,30 @@
                     'mensagem' => $validator->errors()->first()], 422);
             }
 
+            if(!$usuario->empresas->status->where('id', $dados->input('status_id'))->first()){
+
+                // Se a validação falhar, lance uma exceção
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => 'Status Invalido'], 422);
+            }
+
             $task = Task::create([
                 'nome' => $dados->input('nome'),
                 'descricao' => $dados->input('descricao'),
                 'finalizada' => $dados->input('finalizada'),
                 'dataFinalizado' => $dados->input('dataFinalizado'),
                 'dataDeEntrega' => $dados->input('dataDeEntrega'),
-                'empresa_id' => $dados->input('empresa_id')
+                'empresa_id' => $dados->input('empresa_id'),
+                'status_id' => $dados->input('status_id')
             ]);
+
+            $historico = New StatusHistoryService;
+
+            $dados['comentario'] = 'Inicio da tarefa';
+            $dados['task_id'] = $task->id; 
+
+            $historico->registrar($dados);
 
             return response()->json([
                 'status'  => 'OK',
@@ -207,6 +224,39 @@
             'status'  => 'OK',
             'mensagem' => 'Tarefa atualizada com sucesso']);
 
+        }
+
+        public function mudarStatus(Request $dados){
+
+            $historico = New StatusHistoryService;
+
+            $gerarHistorico = $historico->registrar($dados, true);
+
+            if($gerarHistorico === true){
+
+                $usuario = Auth::user();
+
+                $tarefa = $usuario->empresas->tasks->where('id', $dados->input('task_id'))->first();
+
+                if($tarefa){
+
+                    $tarefa->update($dados->only([$dados->input('status_id')]));
+    
+                    return response()->json(['status'  => 'OK', 'mensagem' => 'Tarefa mudou de status']);
+                
+                } else {
+
+                    return response()->json([
+                        'status'  => 'ERRO',
+                        'mensagem' => 'Tarefa invalida'], 422);
+                        
+                }
+            
+            } else {
+
+                return $gerarHistorico;
+
+            }
         }
 
     }

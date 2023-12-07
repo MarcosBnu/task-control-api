@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  *     @OA\Property(property="id", type="integer", description="ID da Tarefa", example=1),
  *     @OA\Property(property="nome", type="string", description="Nome da Tarefa", example="Minha Tarefa"),
  *     @OA\Property(property="empresa_id", type="integer", description="ID da Empresa associada à Tarefa", example=1),
+ *     @OA\Property(property="status_id", type="integer", example=1),
  *     @OA\Property(property="descricao", type="string", description="Descrição da Tarefa", example="Descrição da minha tarefa"),
  *     @OA\Property(property="finalizada", type="boolean", description="Indica se a Tarefa está finalizada", example=false),
  *     @OA\Property(property="dataFinalizado", type="string", format="date-time", nullable=true, description="Data em que a Tarefa foi finalizada", example="2023-01-01T12:00:00Z"),
@@ -24,7 +25,7 @@ class Task extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nome', 'empresa_id', 'descricao', 'finalizada', 'dataFinalizado', 'dataDeEntrega'];
+    protected $fillable = ['status_id', 'nome', 'empresa_id', 'descricao', 'finalizada', 'dataFinalizado', 'dataDeEntrega'];
 
     public function statushistory(){
 

@@ -13,7 +13,7 @@
     class StatusHistoryService
     {
 
-        public final function registrar(Request $dados){
+        public final function registrar(Request $dados, $inicioTarefa = false){
 
 
             $validator = Validator::make($dados->all(), [
@@ -28,12 +28,26 @@
                     'status'  => 'ERRO',
                     'mensagem' => $validator->errors()->first()], 422);
             }
-
+            
             $usuario = Auth::user();
 
-            $temTarefa = $usuario->empresas->tasks->where('id', $dados->input('task_id'))->first();
+            if(!$usuario->empresas->status->where('id', $dados->input('status_id'))->first()){
 
-            if($temTarefa){
+                // Se a validação falhar, lance uma exceção
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => 'Status Invalido'], 422);
+            }
+
+            if(!$usuario->empresas->tasks->where('id', $dados->input('task_id'))->first()){
+                
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => 'Tarefa invalida'], 422);
+
+            }
+
+            if($inicioTarefa){
 
                 $retorno = self::saida($dados->input('task_id'), $dados->input('status_id'));
 
@@ -46,7 +60,6 @@
                 }
                 
             }
-
             //cria o novo registro
             StatusHistory::create([
                 'user_id'   => $usuario->id,
@@ -56,7 +69,7 @@
                 'comentario'=> $dados->input('comentario')
             ]);
 
-            return response()->json(['status'  => 'OK', 'mensagem' => 'Tarefa mudou de status']);
+            return true;
 
         }
 
@@ -140,7 +153,7 @@
             
             $usuario = Auth::user();
 
-            $historico = $usuario->statushistory->where('id', $id)->first();
+            $historico = $usuario->empresas->statushistory->where('id', $id)->first();
 
             if(!$historico){
 

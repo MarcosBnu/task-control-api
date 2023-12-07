@@ -20,7 +20,7 @@
 
             $statusDoUsuario = $usuario->empresas->status;
 
-            return response()->json(['status'  => 'ERRO', 'mensagem' => $statusDoUsuario]);
+            return response()->json(['status'  => 'OK', 'mensagem' => $statusDoUsuario]);
 
         }
         
@@ -108,6 +108,12 @@
                 'status'  => 'ERRO',
                 'mensagem' => 'Status não encontrada ou não autorizada'], 404);
 
+            }
+
+            if($usuario->empresas->tasks->where('task_id', $status->id)->first()){
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => 'Status vinculado a uma tarefa'], 422);
             }
 
             $status->delete();

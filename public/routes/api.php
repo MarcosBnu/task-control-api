@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::post('/cadastrar-tarefa', [TaskController::class, 'register']);
+    Route::post('/mudar-status', [TaskController::class, 'alter']);
     Route::delete('/deletar-tarefa/{id}', [TaskController::class, 'destroy']);
     Route::put('/atualizar-tarefa/{id}', [TaskController::class, 'update']);
     Route::get('/ver-tarefa/{id}', [TaskController::class, 'index']);
@@ -51,7 +52,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/ver-status/{id}', [StatusController::class, 'index']);
     Route::get('/ver-todos-status', [StatusController::class, 'indexs']);
 
-    Route::post('/registrar-historico', [StatusHistoryController::class, 'register']);
     Route::put('/alterar-comentario/{id}', [StatusHistoryController::class, 'update']);
     Route::delete('/deletar-historico/{id}', [StatusHistoryController::class, 'delete']);
     Route::get('/ver-historico', [StatusHistoryController::class, 'index']);
