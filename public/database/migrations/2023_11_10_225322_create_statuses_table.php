@@ -10,8 +10,6 @@ class CreateStatusesTable extends Migration
     {
         Schema::create('status', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
             $table->foreignId('empresa_id')->constrained('empresas')->onDelete('cascade');
             $table->string('nome');
             $table->text('descricao');

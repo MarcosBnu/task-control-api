@@ -20,7 +20,7 @@
 
             $statusDoUsuario = $usuario->empresas->status;
 
-            return response()->json(['status' => $statusDoUsuario]);
+            return response()->json(['status'  => 'OK', 'mensagem' => $statusDoUsuario]);
 
         }
         
@@ -33,20 +33,23 @@
             ]);
 
             if ($validator->fails()) {
-                
-                throw new Exception($validator->errors()->first());
-
+                // Se a validação falhar, lance uma exceção
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
             $statusDoUsuario = $usuario->empresas->status->where('id', $id)->first();
 
             if (!$statusDoUsuario) {
 
-                return response()->json(['mensagem' => 'Status não encontrada ou não autorizada'], 404);
+                return response()->json(['status'  => 'ERRO', 'mensagem' => 'Status não encontrada ou não autorizada'], 404);
             
             }
 
-            return response()->json(['status' => $statusDoUsuario]);
+            return response()->json([
+            'status'  => 'OK',
+            'mensagem' => $statusDoUsuario]);
 
         }
 
@@ -54,12 +57,9 @@
 
             $usuario = Auth::user();
 
-            $dados['user_id'] = $usuario->id;
-
             $dados['empresa_id'] = $usuario->empresa_id;
 
             $validator = Validator::make($dados->all(), [
-                'user_id' => 'required|exists:users,id',
                 'empresa_id'=> 'required|exists:empresas,id',
                 'nome' => 'required|string|min:1',
                 'descricao' => 'required|string|min:1',
@@ -67,18 +67,21 @@
 
             if ($validator->fails()) {
                 // Se a validação falhar, lance uma exceção
-                throw new Exception($validator->errors()->first());
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
             Status::create([
                 'nome' => $dados->input('nome'),
                 'descricao' => $dados->input('descricao'),
-                'user_id' => $dados->input('user_id'),
                 'empresa_id' => $dados->input('empresa_id')
 
             ]);
 
-            return response()->json(['message' => 'Tarefa cadastrada com sucesso!']);
+            return response()->json([                
+            'status'  => 'OK',
+            'mensagem' => 'Status cadastrada com sucesso!'], 201);
 
         }
 
@@ -91,30 +94,33 @@
             ]);
 
             if ($validator->fails()) {
-
-                throw new Exception($validator->errors()->first());
-
-            }
-
-            $tarefaComStatus = Task::where('status_id', $dados)->where('empresa_id')->first();
-
-            if ($tarefaComStatus) {
-
-                return response()->json(['mensagem' => 'Status vinculado a tarefas'], 404);
-            
+                // Se a validação falhar, lance uma exceção
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
             $status = $usuario->empresas->status->where('id', $dados)->first(); 
 
             if(!$status){
 
-                return response()->json(['mensagem' => 'Tarefa não encontrada ou não autorizada'], 404);
+                return response()->json([            
+                'status'  => 'ERRO',
+                'mensagem' => 'Status não encontrada ou não autorizada'], 404);
 
+            }
+
+            if($usuario->empresas->tasks->where('task_id', $status->id)->first()){
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => 'Status vinculado a uma tarefa'], 422);
             }
 
             $status->delete();
 
-            return response()->json(['mensagem' => 'status deletado com sucesso']);
+            return response()->json([
+            'status'  => 'OK',
+            'mensagem' => 'Status deletado com sucesso']);
 
         }
 
@@ -132,32 +138,30 @@
                 return response()->json(['mensagem' => 'JSON vazio'], 404);
             }
             
-            $dados['user_id'] = $usuario->id;
-
             $dados['id'] = $id;
 
             $validator = Validator::make($dados->all(), [
                 'id'    => 'required|numeric',
-                'user_id' => 'required|exists:users,id',
                 'nome' => 'string|min:1',
                 'descricao' => 'string|min:1',
             ]);
 
             if ($validator->fails()) {
                 // Se a validação falhar, lance uma exceção
-                throw new Exception($validator->errors()->first());
-            
+                return response()->json([
+                    'status'  => 'ERRO',
+                    'mensagem' => $validator->errors()->first()], 422);
             }
 
             $status = $usuario->empresas->status->where('id', $id)->first();
 
             if (!$status) {
-                return response()->json(['mensagem' => 'status não encontrada ou não autorizada'], 404);
+                return response()->json(['status'  => 'ERRO', 'mensagem' => 'status não encontrada ou não autorizada'], 404);
             }
 
             $status->update($dados->only(['nome', 'descricao']));
 
-            return response()->json(['mensagem' => 'Status atualizado com sucesso']);
+            return response()->json(['status'  => 'OK', 'mensagem' => 'Status atualizado com sucesso']);
 
         }
     }
